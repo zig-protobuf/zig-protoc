@@ -55,5 +55,15 @@ pub fn findSystemProtoc() Protoc {
         .argv = &.{ command, name },
     }) catch @panic("Failed to execute command: " ++ command);
 
-    return Protoc{ .path = result.stdout };
+    if (result.exit_code != 0) {
+        @panic("Failed to find protoc: " ++ result.stderr);
+    }
+
+    const path = result.stdout.trim();
+
+    if(path.len == 0) {
+        @panic("Failed to find protoc: " ++ result.stderr);
+    }
+
+    return Protoc{ .path = path };
 }
