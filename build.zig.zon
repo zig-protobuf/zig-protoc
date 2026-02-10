@@ -1,18 +1,11 @@
 .{
     .name = .zig_protoc,
-    .version = "32.1",
-    .minimum_zig_version = "0.15.1",
-    .paths = .{
-        "build.zig",
-        "build.zig.zon",
-        "LICENSE.md",
-        "README.md",
-        ".gitignore",
-        "tests",
-        "src"
-    },
+    .version = "32.1.0",
+    .minimum_zig_version = "0.15.2",
+    .paths = .{ "build.zig", "build.zig.zon", "LICENSE.md", "README.md", ".gitignore", "tests", "src" },
     .fingerprint = 0x73c1a419d389ade7,
     .dependencies = .{
+        .protobuf = .{ .path = "pkg/protobuf" },
         .@"protoc-linux-64" = .{
             .url = "https://github.com/protocolbuffers/protobuf/releases/download/v32.1/protoc-32.1-win64.zip",
             .hash = "N-V-__8AAAOIwgCuuT3IhPlAW6erD8SspcE7iVKY4nbJWLV6",
