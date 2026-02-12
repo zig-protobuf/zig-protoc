@@ -4,7 +4,7 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const upstream = b.dependency("protobuf", .{});
+    const upstream = b.dependency("protobuf_src", .{});
     const abseil_dep = b.dependency(
         "abseil",
         .{ .target = target, .optimize = optimize },
@@ -69,9 +69,9 @@ pub fn build(b: *std.Build) void {
         }),
         .linkage = .static,
     });
-    libprotobuf.linkLibrary(abseil_dep.artifact("abseil"));
-    libprotobuf.linkLibrary(utf8_range);
-    libprotobuf.linkLibrary(upb);
+    libprotobuf.root_module.linkLibrary(abseil_dep.artifact("abseil"));
+    libprotobuf.root_module.linkLibrary(utf8_range);
+    libprotobuf.root_module.linkLibrary(upb);
     libprotobuf.addIncludePath(upstream.path(""));
     libprotobuf.addIncludePath(upstream.path("src"));
     libprotobuf.installHeadersDirectory(
@@ -96,10 +96,10 @@ pub fn build(b: *std.Build) void {
         }),
         .linkage = .static,
     });
-    libprotoc.linkLibrary(libprotobuf);
-    libprotoc.linkLibrary(utf8_range);
-    libprotoc.linkLibrary(upb);
-    libprotoc.linkLibrary(abseil_dep.artifact("abseil"));
+    libprotoc.root_module.linkLibrary(libprotobuf);
+    libprotoc.root_module.linkLibrary(utf8_range);
+    libprotoc.root_module.linkLibrary(upb);
+    libprotoc.root_module.linkLibrary(abseil_dep.artifact("abseil"));
     libprotoc.addIncludePath(upstream.path(""));
     libprotoc.addIncludePath(upstream.path("src"));
     libprotoc.addIncludePath(upstream.path("third_party/utf8_range"));
@@ -119,10 +119,10 @@ pub fn build(b: *std.Build) void {
             .link_libcpp = true,
         }),
     });
-    protoc.linkLibrary(libprotoc);
-    protoc.linkLibrary(libprotobuf);
-    protoc.linkLibrary(utf8_range);
-    protoc.linkLibrary(abseil_dep.artifact("abseil"));
+    protoc.root_module.linkLibrary(libprotoc);
+    protoc.root_module.linkLibrary(libprotobuf);
+    protoc.root_module.linkLibrary(utf8_range);
+    protoc.root_module.linkLibrary(abseil_dep.artifact("abseil"));
     protoc.addIncludePath(upstream.path("src"));
     protoc.addIncludePath(upstream.path("third_party/utf8_range"));
     protoc.addCSourceFiles(.{
@@ -130,6 +130,13 @@ pub fn build(b: *std.Build) void {
         .files = protoc_srcs,
         .language = .cpp,
     });
+
+    protoc.step.dependOn(&libprotoc.step);
+    protoc.step.dependOn(&libprotobuf.step);
+    protoc.step.dependOn(&utf8_range.step);
+    protoc.step.dependOn(&abseil_dep.artifact("abseil").step);
+
+    b.getInstallStep().dependOn(&protoc.step);
 
     b.installArtifact(protoc);
 }

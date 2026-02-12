@@ -5,7 +5,7 @@
     .paths = .{ "build.zig", "build.zig.zon", "LICENSE.md", "README.md", ".gitignore", "tests", "src" },
     .fingerprint = 0x73c1a419d389ade7,
     .dependencies = .{
-        .protobuf = .{ .path = "pkg/protobuf" },
+        .protobuf_from_src = .{ .path = "pkg/protobuf", .lazy = true },
         .@"protoc-linux-64" = .{
             .url = "https://github.com/protocolbuffers/protobuf/releases/download/v32.1/protoc-32.1-win64.zip",
             .hash = "N-V-__8AAAOIwgCuuT3IhPlAW6erD8SspcE7iVKY4nbJWLV6",

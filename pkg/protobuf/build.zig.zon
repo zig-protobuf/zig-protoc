@@ -1,14 +1,13 @@
 .{
-    .name = .protobuf,
+    .name = .protobuf_from_src,
     .version = "33.1.0",
-    .fingerprint = 0x99fac5bef9175f04,
+    .fingerprint = 0xfa7d6e6fad1b8b3a,
     .dependencies = .{
-        .protobuf = .{
+        .protobuf_src = .{
             .url = "https://github.com/protocolbuffers/protobuf/releases/download/v33.1/protobuf-33.1.zip",
             .hash = "N-V-__8AAEFHrwK_X6t_KsfWqMUt4PYycrJf9q1klcaITIW9",
-            .lazy = true,
         },
         .abseil = .{ .path = "../abseil" },
     },
-    .paths = .{""},
+    .paths = .{ "build.zig", "build.zig.zon" },
 }

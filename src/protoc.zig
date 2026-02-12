@@ -4,8 +4,9 @@ const protobuf = @import("protobuf");
 
 pub const Protoc = struct {
     path: []const u8,
+    step: *std.Build.Step,
 
-    pub fn downloadProtocBinary(b: *std.Build) Protoc {
+    pub fn downloadProtocBinary(b: *std.Build) !Protoc {
         const os: ?[]const u8 = switch (builtin.os.tag) {
             .macos => "osx",
             .linux => "linux",
@@ -31,13 +32,13 @@ pub const Protoc = struct {
 
         if (b.lazyDependency(dependencyName, .{})) |dep| {
             const path = if (builtin.os.tag == .windows) dep.path("bin/protoc.exe").getPath(b) else dep.path("bin/protoc").getPath(b);
-            return Protoc{ .path = path };
+            return Protoc{ .path = path, .step = dep.builder.default_step };
         }
 
-        @panic("protoc dependency not found for platform: " ++ builtin.os.tag.name ++ " and architecture: " ++ builtin.cpu.arch.name);
+        @panic("protoc dependency not found for platform");
     }
 
-    pub fn findSystemProtoc() Protoc {
+    pub fn findSystemProtoc(b: *std.Build) Protoc {
         const name = switch (builtin.os.tag) {
             .windows => Protoc{ .path = "protoc.exe" },
             .linux, .macos => Protoc{ .path = "protoc" },
@@ -65,37 +66,14 @@ pub const Protoc = struct {
             @panic("Failed to find protoc: " ++ result.stderr);
         }
 
-        return Protoc{ .path = path };
+        return Protoc{ .path = path, .step = b.default_step };
     }
 
-    pub fn buildProtocFromSources(b: *std.Build) Protoc {
-        const target = b.standardTargetOptions(.{});
-        const optimize = b.standardOptimizeOption(.{});
-        return Protoc{ .path = getProtocBin(b, target, optimize).path(b) };
+    pub fn buildProtocFromSources(b: *std.Build, target: std.Build.ResolvedTarget) Protoc {
+        const optimize: std.builtin.OptimizeMode = .ReleaseFast;
+        const protoc = b.dependency("protoc", .{ .target = target });
+        const dep = protoc.builder.lazyDependency("protobuf_from_src", .{ .target = target, .optimize = optimize }) orelse @panic("unable to get protoc from src dep");
+        const path = if (builtin.os.tag == .windows) dep.path("bin/protoc.exe").getPath(b) else dep.path("bin/protoc").getPath(b);
+        return Protoc{ .path = path, .step = &dep.artifact("protoc").step };
     }
 };
-
-
-fn getProtocDependency(
-    b: *std.Build,
-    target: ?std.Build.ResolvedTarget,
-    optimize: ?std.builtin.OptimizeMode,
-) *std.Build.Dependency {
-    return b.dependency("protobuf", .{ .target = target, .optimize = optimize });
-}
-
-fn getProtocArtifact(
-    b: *std.Build,
-    target: ?std.Build.ResolvedTarget,
-    optimize: ?std.builtin.OptimizeMode,
-) *std.Build.Step.Compile {
-    return getProtocDependency(b, target, optimize).artifact("protoc");
-}
-
-pub fn getProtocBin(
-    b: *std.Build,
-    target: ?std.Build.ResolvedTarget,
-    optimize: ?std.builtin.OptimizeMode,
-) std.Build.LazyPath {
-    return getProtocArtifact(b, target, optimize).getEmittedBin();
-}
