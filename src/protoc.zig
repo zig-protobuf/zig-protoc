@@ -6,7 +6,8 @@ pub const Protoc = struct {
     path: []const u8,
     step: *std.Build.Step,
 
-    pub fn downloadProtocBinary(b: *std.Build) !Protoc {
+    pub fn downloadProtocBinary(protoc_dep: *std.Build.Dependency, _: std.Build.ResolvedTarget) !Protoc {
+        const b = protoc_dep.builder;
         const os: ?[]const u8 = switch (builtin.os.tag) {
             .macos => "osx",
             .linux => "linux",
@@ -30,12 +31,10 @@ pub const Protoc = struct {
             @panic("Platform not supported:" ++ builtin.os.tag);
         defer b.allocator.free(dependencyName);
 
-        if (b.lazyDependency(dependencyName, .{})) |dep| {
-            const path = if (builtin.os.tag == .windows) dep.path("bin/protoc.exe").getPath(b) else dep.path("bin/protoc").getPath(b);
-            return Protoc{ .path = path, .step = dep.builder.default_step };
-        }
+        _ = protoc_dep.builder.lazyDependency(dependencyName, .{});
 
-        @panic("protoc dependency not found for platform");
+        const path = if (builtin.os.tag == .windows) protoc_dep.path("bin/protoc.exe").getPath(b) else protoc_dep.path("bin/protoc").getPath(b);
+        return Protoc{ .path = path, .step = protoc_dep.builder.default_step };
     }
 
     pub fn findSystemProtoc(b: *std.Build) Protoc {
@@ -69,10 +68,10 @@ pub const Protoc = struct {
         return Protoc{ .path = path, .step = b.default_step };
     }
 
-    pub fn buildProtocFromSources(b: *std.Build, target: std.Build.ResolvedTarget) Protoc {
+    pub fn buildProtocFromSources(protoc_dep: *std.Build.Dependency, target: std.Build.ResolvedTarget) Protoc {
         const optimize: std.builtin.OptimizeMode = .ReleaseFast;
-        const protoc = b.dependency("protoc", .{ .target = target });
-        const dep = protoc.builder.lazyDependency("protobuf_from_src", .{ .target = target, .optimize = optimize }) orelse @panic("unable to get protoc from src dep");
+        const b = protoc_dep.builder;
+        const dep = b.lazyDependency("protobuf_from_src", .{ .target = target, .optimize = optimize }) orelse @panic("unable to get protoc from src dep");
         const path = if (builtin.os.tag == .windows) dep.path("bin/protoc.exe").getPath(b) else dep.path("bin/protoc").getPath(b);
         return Protoc{ .path = path, .step = &dep.artifact("protoc").step };
     }

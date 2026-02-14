@@ -43,9 +43,8 @@ pub fn build(b: *std.Build) void {
         .target = target,
     });
 
-    const protoc_builder = b.dependency("protoc", .{}).builder;
-
-    const protoc_downloaded = protoc.Protoc.downloadProtocBinary(protoc_builder) catch @panic("unable to download binary");
+    const protoc_dep = b.dependency("protoc", .{ .target = target });
+    const protoc_downloaded = protoc.Protoc.downloadProtocBinary(protoc_dep, target) catch @panic("unable to download binary");
 
     std.debug.print("downloaded : {s}", .{protoc_downloaded.path});
 

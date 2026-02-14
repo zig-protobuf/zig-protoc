@@ -43,7 +43,8 @@ pub fn build(b: *std.Build) void {
         .target = target,
     });
 
-    const protoc_compiled = protoc.Protoc.buildProtocFromSources(b, target);
+    const protoc_dep = b.dependency("protoc", .{ .target = target });
+    const protoc_compiled = protoc.Protoc.buildProtocFromSources(protoc_dep, target);
 
     std.debug.print("compiled : {s}", .{protoc_compiled.path});
 
