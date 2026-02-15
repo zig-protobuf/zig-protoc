@@ -44,9 +44,9 @@ pub fn build(b: *std.Build) void {
     });
 
     const protoc_dep = b.dependency("protoc", .{ .target = target });
-    const protoc_downloaded = protoc.Protoc.downloadProtocBinary(protoc_dep, target) catch @panic("unable to download binary");
+    const protoc_downloaded = protoc.Protoc.downloadProtocBinary(protoc_dep) catch @panic("unable to download binary");
 
-    std.debug.print("downloaded : {s}", .{protoc_downloaded.path});
+    std.debug.print("downloaded : {s}\n", .{protoc_downloaded.path});
 
     // Here we define an executable. An executable needs to have a root module
     // which needs to expose a `main` function. While we could add a main function

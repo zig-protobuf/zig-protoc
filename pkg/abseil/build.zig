@@ -18,13 +18,13 @@ pub fn build(b: *std.Build) void {
     });
 
     if (target.result.os.tag == .windows) {
-        abseil.linkSystemLibrary("dbghelp");
+        abseil.root_module.linkSystemLibrary("dbghelp", .{});
     } else if (target.result.os.tag == .macos) {
-        abseil.linkFramework("CoreFoundation");
+        abseil.root_module.linkFramework("CoreFoundation", .{});
     }
 
-    abseil.addIncludePath(upstream.path(""));
-    abseil.addCSourceFiles(.{
+    abseil.root_module.addIncludePath(upstream.path(""));
+    abseil.root_module.addCSourceFiles(.{
         .root = upstream.path("absl"),
         .files = asbeil_sources,
         .language = .cpp,

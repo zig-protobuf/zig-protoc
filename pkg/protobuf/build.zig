@@ -20,16 +20,16 @@ pub fn build(b: *std.Build) void {
         }),
         .linkage = .static,
     });
-    upb.addIncludePath(upstream.path(""));
-    upb.addIncludePath(upstream.path("src"));
-    upb.addIncludePath(upstream.path("third_party/utf8_range"));
-    upb.addIncludePath(upstream.path("upb/reflection/stage0"));
+    upb.root_module.addIncludePath(upstream.path(""));
+    upb.root_module.addIncludePath(upstream.path("src"));
+    upb.root_module.addIncludePath(upstream.path("third_party/utf8_range"));
+    upb.root_module.addIncludePath(upstream.path("upb/reflection/stage0"));
     upb.installHeadersDirectory(
         upstream.path("upb/reflection/stage0"),
         "",
         .{ .include_extensions = &.{".h"} },
     );
-    upb.addCSourceFiles(.{
+    upb.root_module.addCSourceFiles(.{
         .root = upstream.path(""),
         .files = upb_srcs,
         .language = .c,
@@ -46,13 +46,13 @@ pub fn build(b: *std.Build) void {
         }),
         .linkage = .static,
     });
-    utf8_range.addIncludePath(upstream.path("third_party/utf8_range"));
+    utf8_range.root_module.addIncludePath(upstream.path("third_party/utf8_range"));
     upb.installHeadersDirectory(
         upstream.path("third_party/utf8_range"),
         "",
         .{ .include_extensions = &.{".h"} },
     );
-    utf8_range.addCSourceFiles(.{
+    utf8_range.root_module.addCSourceFiles(.{
         .root = upstream.path("third_party/utf8_range"),
         .files = utf8_range_srcs,
         .language = .cpp,
@@ -72,14 +72,14 @@ pub fn build(b: *std.Build) void {
     libprotobuf.root_module.linkLibrary(abseil_dep.artifact("abseil"));
     libprotobuf.root_module.linkLibrary(utf8_range);
     libprotobuf.root_module.linkLibrary(upb);
-    libprotobuf.addIncludePath(upstream.path(""));
-    libprotobuf.addIncludePath(upstream.path("src"));
+    libprotobuf.root_module.addIncludePath(upstream.path(""));
+    libprotobuf.root_module.addIncludePath(upstream.path("src"));
     libprotobuf.installHeadersDirectory(
         upstream.path("src"),
         "",
         .{ .include_extensions = &.{ ".h", ".proto" } },
     );
-    libprotobuf.addCSourceFiles(.{
+    libprotobuf.root_module.addCSourceFiles(.{
         .root = upstream.path(""),
         .files = libprotobuf_srcs,
         .language = .cpp,
@@ -100,10 +100,10 @@ pub fn build(b: *std.Build) void {
     libprotoc.root_module.linkLibrary(utf8_range);
     libprotoc.root_module.linkLibrary(upb);
     libprotoc.root_module.linkLibrary(abseil_dep.artifact("abseil"));
-    libprotoc.addIncludePath(upstream.path(""));
-    libprotoc.addIncludePath(upstream.path("src"));
-    libprotoc.addIncludePath(upstream.path("third_party/utf8_range"));
-    libprotoc.addCSourceFiles(.{
+    libprotoc.root_module.addIncludePath(upstream.path(""));
+    libprotoc.root_module.addIncludePath(upstream.path("src"));
+    libprotoc.root_module.addIncludePath(upstream.path("third_party/utf8_range"));
+    libprotoc.root_module.addCSourceFiles(.{
         .root = upstream.path(""),
         .files = libprotoc_srcs,
         .language = .cpp,
@@ -123,9 +123,9 @@ pub fn build(b: *std.Build) void {
     protoc.root_module.linkLibrary(libprotobuf);
     protoc.root_module.linkLibrary(utf8_range);
     protoc.root_module.linkLibrary(abseil_dep.artifact("abseil"));
-    protoc.addIncludePath(upstream.path("src"));
-    protoc.addIncludePath(upstream.path("third_party/utf8_range"));
-    protoc.addCSourceFiles(.{
+    protoc.root_module.addIncludePath(upstream.path("src"));
+    protoc.root_module.addIncludePath(upstream.path("third_party/utf8_range"));
+    protoc.root_module.addCSourceFiles(.{
         .root = upstream.path(""),
         .files = protoc_srcs,
         .language = .cpp,

@@ -6,7 +6,7 @@ pub const Protoc = struct {
     path: []const u8,
     step: *std.Build.Step,
 
-    pub fn downloadProtocBinary(protoc_dep: *std.Build.Dependency, _: std.Build.ResolvedTarget) !Protoc {
+    pub fn downloadProtocBinary(protoc_dep: *std.Build.Dependency) !Protoc {
         const b = protoc_dep.builder;
         const os: ?[]const u8 = switch (builtin.os.tag) {
             .macos => "osx",
